@@ -7,7 +7,9 @@ permissions:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: 25
+    env:
+      QT_QPA_PLATFORM: offscreen
     strategy:
       fail-fast: false
       matrix:
@@ -18,7 +20,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m pip install -e ".[dev]"
+      - run: python -m pip install -e ".[dev,gui,gui-test]"
       - run: python -m pytest
       - run: python -m ruff check .
       - run: python -m ruff format --check .
@@ -29,4 +31,4 @@ jobs:
       - run: fuzzrank watch tests/fixtures --target https://fixture.example --max-updates 1 --output results/ci-watch --quiet
       - run: fuzzrank demo --output results/ci-demo --quiet
       - run: python -m build
-      - run: python scripts/wheel_smoke.py --wheel-dir dist --output results/ci-wheel
+      - run: python scripts/wheel_smoke.py --wheel-dir dist --output results/ci-wheel --gui

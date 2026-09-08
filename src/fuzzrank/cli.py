@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import UTC, datetime
 from pathlib import Path
 
 from rich.console import Console
@@ -15,7 +14,7 @@ from fuzzrank.demo import collect_demo
 from fuzzrank.doctor import inspect, seclists_locations
 from fuzzrank.engines import ADAPTERS
 from fuzzrank.engines.base import MAX_FILE_BYTES, MAX_RECORDS, MAX_TOTAL_INPUT_BYTES, read_input
-from fuzzrank.inputs import OUTPUT_MARKER, InputLimits
+from fuzzrank.inputs import InputLimits, prepare_output
 from fuzzrank.pipeline import analyze
 from fuzzrank.reporting import html_report, json_report
 from fuzzrank.reporting.console import print_report, safe
@@ -101,19 +100,6 @@ def _parser() -> argparse.ArgumentParser:
     command.add_argument("--wordlist", type=Path, help="Inspect a local wordlist without using it")
     commands.add_parser("wordlists", help="Show optional SecLists locations and profile hints")
     return parser
-
-
-def prepare_output(path: Path | None) -> Path:
-    if path is None:
-        stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
-        path = Path("results") / stamp
-    if path.is_symlink():
-        raise ValueError("Output directory must not be a symlink")
-    path.mkdir(parents=True, exist_ok=True)
-    if any(path.iterdir()):
-        raise ValueError(f"Output directory is not empty: {path}; choose a new directory")
-    (path / OUTPUT_MARKER).write_text("FuzzRank generated output; exclude from input discovery.\n")
-    return path.resolve()
 
 
 def _limits(args) -> InputLimits:

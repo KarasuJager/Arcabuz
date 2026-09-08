@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fuzzrank.engines import detect, parse
@@ -22,6 +23,20 @@ from fuzzrank.reporting.json_report import atomic_write
 
 SUFFIXES = {".json", ".jsonl", ".ndjson", ".ejson", ".har", ".txt", ".log"}
 OUTPUT_MARKER = ".fuzzrank-output"
+
+
+def prepare_output(path: Path | None) -> Path:
+    """Shared output lifecycle for CLI and desktop investigations."""
+    if path is None:
+        stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
+        path = Path("results") / stamp
+    if path.is_symlink():
+        raise ValueError("Output directory must not be a symlink")
+    path.mkdir(parents=True, exist_ok=True)
+    if any(path.iterdir()):
+        raise ValueError(f"Output directory is not empty: {path}; choose a new directory")
+    (path / OUTPUT_MARKER).write_text("FuzzRank generated output; exclude from input discovery.\n")
+    return path.resolve()
 
 
 @dataclass(frozen=True)

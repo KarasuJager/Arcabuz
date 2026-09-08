@@ -1,14 +1,18 @@
 .venv/
+venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
 *.egg-info/
 build/
 dist/
 results/
 demo-results/
 .coverage
+.coverage.*
+coverage.xml
 htmlcov/
 .wheel-smoke/
 .env
@@ -19,3 +23,8 @@ htmlcov/
 *.p12
 *.pfx
 captures/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini

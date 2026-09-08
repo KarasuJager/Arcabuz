@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fuzzrank"
-version = "1.0.0"
+version = "2.0.0"
 description = "Deterministic, offline triage of authorized web discovery results"
 readme = "README.md"
 license = "MIT"
@@ -14,15 +14,20 @@ dependencies = ["rich>=13.7,<15", "PyYAML>=6.0.2,<7"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "ruff>=0.9,<1", "build>=1.2,<2", "jsonschema>=4.23,<5"]
+gui = ["PySide6-Essentials>=6.8,<7", "jsonschema>=4.23,<5"]
+gui-test = ["pytest-qt>=4.4,<5"]
 
 [project.scripts]
 fuzzrank = "fuzzrank.cli:main"
+
+[project.gui-scripts]
+fuzzrank-gui = "fuzzrank.gui.app:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-fuzzrank = ["profiles/*.yaml", "rules/*.yaml", "schemas/*.json"]
+fuzzrank = ["profiles/*.yaml", "rules/*.yaml", "schemas/*.json", "gui/assets/*.png"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

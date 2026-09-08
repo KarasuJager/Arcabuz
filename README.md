@@ -1,5 +1,7 @@
 # FUZZRANK
 
+<img src="docs/assets/fuzzrank-logo.png" width="420" alt="FuzzRank guardian helmet and ranking emblem">
+
 **Deterministic fuzzing triage for pentesters.**
 
 FuzzRank turns saved discovery results into an explainable investigation queue:
@@ -20,7 +22,8 @@ The optional demo creates and closes its own loopback-only test server.
 
 ## Install
 
-Python 3.11+ is required. Runtime dependencies are Rich and PyYAML.
+Python 3.11+ is required. CLI dependencies are Rich and PyYAML. The optional native
+desktop interface adds PySide6 Essentials (Qt Widgets) and JSON Schema validation.
 
 ```console
 python -m venv .venv
@@ -38,6 +41,49 @@ fuzzrank doctor
 For development, install with `python -m pip install -e ".[dev]"`.
 Engine binaries, databases, containers, and background services are unnecessary for imports.
 FuzzRank source code is [MIT licensed](LICENSE.md), copyright (c) 2026 KarasuJager.
+PySide6 / Qt is an external optional GUI dependency with its own licensing terms;
+FuzzRank's MIT license does not relicense Qt or PySide6. See the
+[GUI dependency notes](docs/GUI_DEPENDENCIES.md).
+
+## Desktop interface
+
+FuzzRank V2 provides a native Windows/Linux desktop over the same V1 analysis engine.
+The CLI remains available independently. Install from this checkout:
+
+```console
+python -m pip install ".[gui]"
+fuzzrank-gui
+fuzzrank-gui --demo
+fuzzrank-gui --open-report results/review/report.json
+```
+
+Choose **Analyze files**, **Analyze folder**, or **Import HAR**. The configuration window
+detects source formats, lets you choose a profile, optional scope/baselines, input limits,
+and a new output directory. Analysis runs in the background; the previous investigation
+remains available until the new result is ready. Local files/folders can also be dropped
+onto the window.
+
+The native candidate table supports score sorting, text search, and priority, status,
+engine, content-type, and cluster filters. Selecting a row shows every signed score
+activation, response metadata, fingerprints, baseline support, and source provenance.
+Dedicated views cover summary metrics, clusters, suppressed/noise results, baselines,
+and parsing diagnostics. Open cluster members to include suppressed evidence; reset
+filters to return to the retained queue. Drag the horizontal splitter to resize details.
+
+**Watch directory** uses the existing debounce and immutable snapshot service. Watch
+status shows the folder, last update, and changed filenames. **Stop Watching** ends the
+worker safely. JSON/HTML reports are produced automatically; stop watching before using
+the manual **Export** action. Neither interface launches fuzzers or replays captures.
+
+Shortcuts: **Ctrl+O** import, **Ctrl+F** search, **Ctrl+E** export, **Ctrl+Q** exit.
+Preferences contain dark/light appearance, default profile, and watch debounce only.
+No recent evidence paths or capture contents are stored in preferences.
+
+See the [desktop guide](docs/GUI.md), [shared architecture](docs/V2_GUI.md),
+[Qt dependency and redistribution notes](docs/GUI_DEPENDENCIES.md), and
+[V2 validation](V2_VALIDATION.md) and [final hardening](V2_HARDENING.md).
+The GUI is native and backend-free; it does not use
+a browser runtime, remote resources, or an application server.
 
 ## Analyze evidence
 
@@ -302,6 +348,7 @@ consume browser memory. See [measured stress results](VALIDATION.md).
 ```text
 src/fuzzrank/
   cli.py                     argument handling and terminal orchestration
+  gui/                       native models, views, dialogs, and background workers
   inputs.py, service.py      local loading and shared investigation service
   watch.py                   debounce, reload, immutable publication
   models.py, scope.py         evidence/report model and exact-origin scope
@@ -316,8 +363,8 @@ scripts/                     reproducible local benchmarks and wheel validation
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for adding a parser, rule, or technology profile,
 [SECURITY.md](SECURITY.md) for evidence handling, and [docs/V2_GUI.md](docs/V2_GUI.md)
-for the future shared-core desktop architecture. No desktop GUI is included.
-See [CHANGELOG.md](CHANGELOG.md) and [quality gates](V1_QUALITY_GATES.md).
+for the shared-core desktop architecture. See [CHANGELOG.md](CHANGELOG.md),
+[V1 quality gates](V1_QUALITY_GATES.md), and [V2 quality gates](V2_QUALITY_GATES.md).
 
 Use only evidence from systems you own or have explicit authorization to assess.
 The human tester decides what to investigate.

@@ -62,7 +62,7 @@ negative synthetic captures. Profiles must not initiate detection or network req
 
 Read [the JSON contract](docs/JSON_SCHEMA.md) before changing models. Keep schema tests,
 body encoding, provenance, summary arithmetic, and suppression evidence intact.
-Do not duplicate analysis inside a report renderer or future UI. Include failure and
+Do not duplicate analysis inside a report renderer or UI. Include failure and
 interruption tests for changes to imports, watch publication, and atomic output writing.
 
 The CI matrix builds on Windows and Linux with supported Python versions. No package or
@@ -73,3 +73,24 @@ use an installed Microsoft Edge browser, then run `scripts/browser_smoke.py` aga
 report with `--output results/browser-check`. This extra driver is not a runtime dependency
 or a requirement of the regular pytest suite. The check opens a local file and closes its
 isolated browser afterward; screenshots stay in the selected output directory.
+
+## Desktop development
+
+```console
+python -m pip install -e ".[dev,gui,gui-test]"
+python -m pytest -q
+python -m fuzzrank.gui --demo
+python scripts/gui_benchmark.py --records 20000 --output results/gui-stress
+python scripts/wheel_smoke.py --wheel-dir dist --output results/wheel-check --gui
+```
+
+GUI tests use pytest-qt and set `QT_QPA_PLATFORM=offscreen`. The existing CLI tests also
+run without Qt; desktop tests skip when the optional GUI/test extras are absent.
+The complete desktop release gate requires those extras and no skipped GUI tests.
+Keep `QAbstractTableModel` mutations on the GUI thread. Workers call the shared
+`Investigation.refresh()`/watch services and emit immutable-by-convention report snapshots.
+Model filtering/sorting changes presentation only. Add CLI/GUI parity regressions for any
+new orchestration option. Do not forcibly terminate QThreads or render evidence as HTML.
+
+Native screenshots may contain output paths and source content. Keep them in ignored
+`results/` folders; use reviewed synthetic-only images if adding documentation screenshots.

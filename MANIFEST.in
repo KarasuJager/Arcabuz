@@ -1,8 +1,11 @@
 include README.md LICENSE.md pyproject.toml CONTRIBUTING.md SECURITY.md CHANGELOG.md
 include VALIDATION.md V1_QUALITY_GATES.md
+include V2_VALIDATION.md V2_QUALITY_GATES.md
+include V2_HARDENING.md
 recursive-include src/fuzzrank/profiles *.yaml
 recursive-include src/fuzzrank/rules *.yaml
 recursive-include src/fuzzrank/schemas *.json
 recursive-include tests *.py *.json *.jsonl *.txt *.har *.ejson *.ndjson
-recursive-include docs *.md
+recursive-include docs *.md *.png
+recursive-include src/fuzzrank/gui/assets *.png *.md
 recursive-include scripts *.py

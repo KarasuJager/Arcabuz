@@ -19,6 +19,17 @@ memory sandbox. For untrusted large inputs use tighter limits and isolated local
 Do not select an evidence/output directory that another untrusted process can replace
 with filesystem links while analysis runs. Watch assumes cooperative local producers.
 
+## Native desktop
+
+The desktop uses plain-text native widgets, with no WebEngine or HTML evidence renderer.
+URL copying is an explicit local clipboard action; links are not opened automatically.
+Saved JSON reports are bounded, duplicate-key rejected, validated against the bundled
+schema, and checked for inconsistent identities, references, counts, and score sums.
+Opening a report restores its saved conclusions; it does not establish authenticity or
+recompute its scores. Evidence archive references remain data and are never automatically
+read or executed by the desktop report loader. JSON/HTML export uses the existing writers.
+Preferences store appearance, default profile, and debounce only, without recent paths.
+
 ## Reporting a project security issue
 
 Use GitHub Private Vulnerability Reporting: open the repository's **Security** tab,
