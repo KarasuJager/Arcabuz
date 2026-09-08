@@ -1,0 +1,5 @@
+name: api
+description: API response and schema review priorities
+extensions: [.json, .xml]
+wordlist_hints: [Discovery/Web-Content/api/api-endpoints.txt]
+rule_points: {api_route: 15, json_response: 17, xml_response: 12}

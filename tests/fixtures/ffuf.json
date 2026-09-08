@@ -1,0 +1,9 @@
+{
+  "time": "2026-01-01T12:00:00Z",
+  "config": {"method": "GET"},
+  "results": [
+    {"url":"https://fixture.example/api/users","status":200,"length":46,"words":1,"lines":1,"content-type":"application/json","redirectlocation":""},
+    {"url":"https://fixture.example/admin","status":403,"length":82,"words":9,"lines":1,"content-type":"text/html","redirectlocation":""},
+    {"url":"https://fixture.example/assets/app.js","status":200,"length":245,"words":20,"lines":4,"content-type":"application/javascript","redirectlocation":""}
+  ]
+}

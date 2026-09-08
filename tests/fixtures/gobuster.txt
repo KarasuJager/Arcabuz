@@ -1,0 +1,3 @@
+/admin (Status: 403) [Size: 82]
+/api/users (Status: 200) [Size: 46]
+/login (Status: 302) [Size: 24] [--> /home]

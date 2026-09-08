@@ -1,0 +1,5 @@
+name: web
+description: Web application review priorities
+extensions: [.html, .json, .txt]
+wordlist_hints: [Discovery/Web-Content/raft-small-words.txt]
+rule_points: {functionality: 20}

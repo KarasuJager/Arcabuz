@@ -1,0 +1,2 @@
+{"input":{"FUZZ":"api/users"},"position":1,"status":200,"length":45,"words":1,"lines":1,"content-type":"application/json","redirectlocation":"","url":"https://fixture.example/api/users"}
+{"input":{"FUZZ":"admin"},"position":2,"status":403,"length":31,"words":4,"lines":1,"content-type":"text/html","redirectlocation":"","url":"https://fixture.example/admin"}

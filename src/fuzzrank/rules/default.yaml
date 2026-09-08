@@ -1,0 +1,79 @@
+version: 1
+base_score: 10
+rules:
+  - id: schema_artifact
+    points: 35
+    reason: OpenAPI/Swagger documentation artifact
+    when: {path_tokens: [swagger, openapi, api-docs]}
+  - id: sensitive_route
+    points: 25
+    reason: Administrative or internal route keyword
+    when: {path_tokens: [internal, admin, management, actuator, debug, console]}
+  - id: api_route
+    points: 10
+    reason: API route keyword
+    when: {path_tokens: [api, graphql]}
+  - id: functionality
+    points: 15
+    reason: Functionality worth manual review
+    when: {path_tokens: [upload, import, export, backup, config, dashboard, users, account, auth, oauth, callback, webhook, proxy, redirect, download, report]}
+  - id: authentication_boundary
+    points: 15
+    reason: HTTP 401 authentication boundary
+    when: {statuses: [401]}
+  - id: authorization_boundary
+    points: 12
+    reason: HTTP 403 authorization boundary
+    when: {statuses: [403]}
+  - id: json_response
+    points: 12
+    reason: JSON response media type
+    when: {content_types: [application/json, application/*+json]}
+  - id: xml_response
+    points: 8
+    reason: XML response media type
+    when: {content_types: [application/xml, text/xml, application/*+xml]}
+  - id: successful_unique
+    points: 10
+    reason: Successful response with unique complete body evidence
+    when: {signals: [successful_unique]}
+  - id: unique_body
+    points: 8
+    reason: Unique response cluster with complete body evidence
+    when: {signals: [unique_body]}
+  - id: rare_shape
+    points: 5
+    reason: Rare status and response-length combination (at most 2 of at least 20 candidates)
+    when: {signals: [rare_shape]}
+  - id: baseline_different
+    points: 20
+    reason: Complete response differs substantially from repeated missing-path baseline
+    when: {signals: [baseline_different]}
+  - id: external_redirect
+    points: 5
+    reason: Redirect destination is outside the imported scope; not followed
+    when: {signals: [external_redirect]}
+  - id: observation_conflict
+    points: 0
+    reason: Observations disagree; automatic suppression disabled
+    when: {signals: [conflict]}
+  - id: baseline_match
+    points: -90
+    reason: Normalized body and response metadata match repeated missing-path baseline
+    when: {signals: [baseline_match]}
+  - id: baseline_near
+    points: -30
+    reason: Similar to missing-path baseline; retained because this is approximate evidence
+    when: {signals: [baseline_near]}
+  - id: duplicate_response
+    points: -25
+    reason: Duplicate response; higher-priority cluster representative retained
+    when: {signals: [duplicate]}
+  - id: static_asset
+    points: -30
+    reason: Common static asset extension
+    when: {extensions: [.css, .js, .png, .jpg, .jpeg, .gif, .svg, .ico, .woff, .woff2, .ttf, .webp]}
+  - id: framework_noise
+    points: -10
+    reason: Common framework or browser asset route
+    when: {path_tokens: [favicon, _next, _nuxt]}

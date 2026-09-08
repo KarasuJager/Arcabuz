@@ -1,0 +1,5 @@
+name: generic
+description: Balanced manual-review priorities
+extensions: []
+wordlist_hints: [Discovery/Web-Content/common.txt]
+rule_points: {}

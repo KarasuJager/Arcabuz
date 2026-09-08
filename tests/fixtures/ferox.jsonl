@@ -1,0 +1,4 @@
+{"type":"configuration","threads":4}
+{"type":"response","url":"https://fixture.example/api/users","original_url":"https://fixture.example/api/users","status":200,"content_length":46,"word_count":1,"line_count":1,"method":"GET","headers":{"content-type":"application/json"},"truncated":false,"timestamp":1767268800}
+{"type":"response","url":"https://fixture.example/swagger.json","status":200,"content_length":81,"method":"GET","headers":{"Content-Type":"application/json"}}
+{"type":"response","url":"https://other.example/moved","original_url":"https://fixture.example/redirect","status":200,"content_length":30,"headers":{"content-type":"text/html"}}

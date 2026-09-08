@@ -1,0 +1,663 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:fuzzrank:report:1",
+  "title": "FuzzRank V1 offline triage report",
+  "description": "Schema revision 1.0.0. Additive unknown properties are intentional; consumers must tolerate them.",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "fuzzrank-report"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "schema_revision": {
+      "const": "1.0.0"
+    },
+    "target": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "profile": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "required": [
+        "raw_discoveries",
+        "out_of_scope",
+        "duplicates_merged",
+        "unique_endpoints",
+        "noise_suppressed",
+        "unique_candidates",
+        "inspect_now",
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/candidate"
+      }
+    },
+    "baselines": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/observation"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "clusters": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/cluster"
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "type": "object"
+        },
+        "rules": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "profile",
+        "rules"
+      ],
+      "additionalProperties": true
+    },
+    "excluded": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/observation"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    },
+    "partial": {
+      "type": "boolean"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "tool": {
+          "const": "FuzzRank"
+        },
+        "tool_version": {
+          "type": "string"
+        },
+        "generated_at": {
+          "type": "string"
+        },
+        "schema": {
+          "const": "urn:fuzzrank:report:1"
+        },
+        "body_encoding": {
+          "const": "base64"
+        },
+        "fingerprint_cache_entries": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "tool",
+        "tool_version",
+        "generated_at",
+        "schema",
+        "body_encoding"
+      ],
+      "additionalProperties": true
+    },
+    "import_diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/diagnostic"
+      }
+    }
+  },
+  "required": [
+    "format",
+    "schema_version",
+    "schema_revision",
+    "target",
+    "scope",
+    "profile",
+    "summary",
+    "candidates",
+    "baselines",
+    "warnings",
+    "clusters",
+    "configuration",
+    "excluded",
+    "sources",
+    "partial",
+    "metadata",
+    "import_diagnostics"
+  ],
+  "additionalProperties": true,
+  "$defs": {
+    "body": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "encoding": {
+              "const": "base64"
+            },
+            "data": {
+              "type": "string",
+              "contentEncoding": "base64"
+            }
+          },
+          "required": [
+            "encoding",
+            "data"
+          ],
+          "additionalProperties": true
+        }
+      ]
+    },
+    "observation": {
+      "type": "object",
+      "properties": {
+        "engine": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "status_code": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599
+        },
+        "content_length": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "word_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "line_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "content_type": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "timestamp": {
+          "type": [
+            "string",
+            "number",
+            "null"
+          ]
+        },
+        "body": {
+          "$ref": "#/$defs/body"
+        },
+        "truncated": {
+          "type": "boolean"
+        },
+        "source": {
+          "type": "string"
+        },
+        "record": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "baseline": {
+          "type": "boolean"
+        },
+        "body_source": {
+          "type": "string"
+        },
+        "evidence_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "header_items": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      },
+      "required": [
+        "engine",
+        "method",
+        "url",
+        "status_code",
+        "content_length",
+        "word_count",
+        "line_count",
+        "content_type",
+        "location",
+        "headers",
+        "timestamp",
+        "body",
+        "truncated",
+        "source",
+        "record",
+        "baseline",
+        "body_source",
+        "evidence_notes",
+        "header_items"
+      ],
+      "additionalProperties": true
+    },
+    "fingerprint": {
+      "type": "object",
+      "properties": {
+        "raw_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "normalized_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "normalized_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "shingles": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "normalization": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "raw_sha256",
+        "normalized_sha256",
+        "normalized_length",
+        "title",
+        "shingles",
+        "complete",
+        "normalization"
+      ],
+      "additionalProperties": true
+    },
+    "activation": {
+      "type": "object",
+      "properties": {
+        "rule_id": {
+          "type": "string"
+        },
+        "points": {
+          "type": "integer"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "points",
+        "reason"
+      ],
+      "additionalProperties": true
+    },
+    "candidate": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/observation"
+          }
+        },
+        "primary": {
+          "$ref": "#/$defs/observation"
+        },
+        "fingerprint": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/fingerprint"
+            }
+          ]
+        },
+        "response_cluster": {
+          "type": "string"
+        },
+        "cluster_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "baseline": {
+          "type": "string"
+        },
+        "baseline_similarity": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "category": {
+          "type": "string"
+        },
+        "score_reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/activation"
+          }
+        },
+        "suppressed": {
+          "type": "boolean"
+        },
+        "suppression_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "signals": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        },
+        "evidence_conflict": {
+          "type": "boolean"
+        },
+        "evidence_quality": {
+          "type": "string"
+        },
+        "evidence_gaps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "engines": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "method",
+        "url",
+        "path",
+        "observations",
+        "primary",
+        "fingerprint",
+        "response_cluster",
+        "cluster_size",
+        "baseline",
+        "baseline_similarity",
+        "score",
+        "category",
+        "score_reasons",
+        "suppressed",
+        "suppression_reason",
+        "signals",
+        "evidence_conflict",
+        "evidence_quality",
+        "evidence_gaps",
+        "engines"
+      ],
+      "additionalProperties": true
+    },
+    "cluster": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "representative": {
+          "type": "string"
+        },
+        "suppressed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "observation_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "statuses": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "engines": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "content_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "length_range": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          ]
+        },
+        "suppression_reasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "baseline_matches": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "classification": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "members",
+        "representative",
+        "suppressed",
+        "observation_count",
+        "statuses",
+        "engines",
+        "content_types",
+        "length_range",
+        "suppression_reasons",
+        "baseline_matches",
+        "classification"
+      ],
+      "additionalProperties": true
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "original_path": {
+          "type": "string"
+        },
+        "archive": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "role": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "original_path",
+        "archive",
+        "sha256",
+        "bytes",
+        "role",
+        "status"
+      ],
+      "additionalProperties": true
+    },
+    "diagnostic": {
+      "type": "object",
+      "properties": {
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ]
+        },
+        "source": {
+          "type": "string"
+        },
+        "record": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "severity",
+        "source",
+        "message"
+      ],
+      "additionalProperties": true
+    }
+  }
+}

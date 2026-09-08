@@ -1,0 +1,1 @@
+{"time":"2026-01-01T12:00:00Z","config":{"method":"GET"},"results":[{"input":{"FUZZ":[97,100,109,105,110]},"status":403,"length":31,"words":4,"lines":1,"content-type":"text/html","redirectlocation":"","url":"https://fixture.example/admin"}]}
