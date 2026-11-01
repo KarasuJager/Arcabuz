@@ -1,5 +1,7 @@
 # Arcabuz
 
+![Arcabuz Banner](banner.png)
+
 > *El disparo del arcabuz se dispersa — cada proyectil busca la brecha.*
 
 Multi-tool fuzzing dockerizado para bug bounty. 4 herramientas, 4 modos,
