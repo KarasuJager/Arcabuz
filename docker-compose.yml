@@ -1,0 +1,8 @@
+services:
+  arcabuz:
+    build: .
+    volumes:
+      - ./scope:/scope:ro
+      - ./data:/data
+    environment:
+      - HANDLE=${HANDLE:-researcher}
