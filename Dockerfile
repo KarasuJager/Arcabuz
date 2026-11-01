@@ -57,7 +57,7 @@ RUN mkdir -p /wordlists/Discovery/Web-Content/api /wordlists/Discovery/DNS && \
 
 # ---- app scripts -------------------------------------------
 COPY scripts/ /app/scripts/
-RUN chmod +x /app/scripts/*.sh
+RUN sed -i 's/\r$//' /app/scripts/*.sh /app/scripts/*.py && chmod +x /app/scripts/*.sh
 
 WORKDIR /app
 
