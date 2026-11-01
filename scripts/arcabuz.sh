@@ -54,7 +54,7 @@ MODE="${1:-}"
 shift
 
 # ---- Parse arguments ----
-URL="" DOMAIN="" WORDLIST="" THREADS="40" EXTENSIONS="" OUTPUT=""
+URL="" DOMAIN="" WORDLIST="" THREADS="40" EXTENSIONS="" OUTPUT="" TOOL_TIMEOUT="300"
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -64,6 +64,7 @@ while [ $# -gt 0 ]; do
         -t) THREADS="$2"; shift 2 ;;
         -x) EXTENSIONS="$2"; shift 2 ;;
         -o) OUTPUT="$2"; shift 2 ;;
+        -T) TOOL_TIMEOUT="$2"; shift 2 ;;
         --help) usage ;;
         *) echo "[!] Unknown option: $1"; usage ;;
     esac
@@ -100,6 +101,7 @@ echo " Arcabuz — $MODE"
 echo " $(date)"
 echo " Wordlist: $(basename "$WL") ($(wc -l < "$WL") entries)"
 echo " Threads: $THREADS"
+echo " Timeout: ${TOOL_TIMEOUT}s por herramienta"
 echo " Output: $OUTPUT"
 echo "============================================"
 echo ""
@@ -124,7 +126,7 @@ if [ "$MODE" = "dirs" ]; then
     echo "══════════════════════════════════════════"
     echo " [1/4] ffuf"
     echo "══════════════════════════════════════════"
-    ffuf -u "${URL}/FUZZ" -w "$WL" -t "$THREADS" \
+    timeout "$TOOL_TIMEOUT" ffuf -u "${URL}/FUZZ" -w "$WL" -t "$THREADS" \
         -H "User-Agent: ${UA}" \
         -mc 200,201,204,301,302,307,401,403,405 \
         -fc 404 \
@@ -138,7 +140,7 @@ if [ "$MODE" = "dirs" ]; then
     echo "══════════════════════════════════════════"
     echo " [2/4] gobuster"
     echo "══════════════════════════════════════════"
-    gobuster dir -u "$URL" -w "$WL" -t "$THREADS" \
+    timeout "$TOOL_TIMEOUT" gobuster dir -u "$URL" -w "$WL" -t "$THREADS" \
         -a "$UA" \
         -s "200,201,204,301,302,307,401,403,405" \
         -o "$OUTPUT/raw/gobuster.txt" \
@@ -152,7 +154,7 @@ if [ "$MODE" = "dirs" ]; then
     echo "══════════════════════════════════════════"
     echo " [3/4] dirsearch"
     echo "══════════════════════════════════════════"
-    python3 /opt/dirsearch/dirsearch.py -u "$URL" -w "$WL" \
+    timeout "$TOOL_TIMEOUT" python3 /opt/dirsearch/dirsearch.py -u "$URL" -w "$WL" \
         -t "$THREADS" \
         --user-agent="$UA" \
         --format=json -o "$OUTPUT/raw/dirsearch.json" \
@@ -165,7 +167,7 @@ if [ "$MODE" = "dirs" ]; then
     echo "══════════════════════════════════════════"
     echo " [4/4] feroxbuster"
     echo "══════════════════════════════════════════"
-    feroxbuster -u "$URL" -w "$WL" -t "$THREADS" \
+    timeout "$TOOL_TIMEOUT" feroxbuster -u "$URL" -w "$WL" -t "$THREADS" \
         -H "User-Agent: ${UA}" \
         -s 200,201,204,301,302,307,401,403,405 \
         -o "$OUTPUT/raw/feroxbuster.txt" \
@@ -185,7 +187,7 @@ elif [ "$MODE" = "subs" ]; then
     echo "══════════════════════════════════════════"
     echo " [1/2] ffuf (vhost)"
     echo "══════════════════════════════════════════"
-    ffuf -u "http://${DOMAIN}" -w "$WL" -t "$THREADS" \
+    timeout "$TOOL_TIMEOUT" ffuf -u "http://${DOMAIN}" -w "$WL" -t "$THREADS" \
         -H "Host: FUZZ.${DOMAIN}" \
         -H "User-Agent: ${UA}" \
         -mc 200,301,302,307,401,403 \
@@ -199,7 +201,7 @@ elif [ "$MODE" = "subs" ]; then
     echo "══════════════════════════════════════════"
     echo " [2/2] gobuster (dns)"
     echo "══════════════════════════════════════════"
-    gobuster dns -d "$DOMAIN" -w "$WL" -t "$THREADS" \
+    timeout "$TOOL_TIMEOUT" gobuster dns -d "$DOMAIN" -w "$WL" -t "$THREADS" \
         -o "$OUTPUT/raw/gobuster-subs.txt" \
         --no-error -q \
         2>/dev/null || true
@@ -216,7 +218,7 @@ elif [ "$MODE" = "params" ]; then
     echo "══════════════════════════════════════════"
     echo " [1/2] ffuf (GET params)"
     echo "══════════════════════════════════════════"
-    ffuf -u "${URL}?FUZZ=test" -w "$WL" -t "$THREADS" \
+    timeout "$TOOL_TIMEOUT" ffuf -u "${URL}?FUZZ=test" -w "$WL" -t "$THREADS" \
         -H "User-Agent: ${UA}" \
         -mc 200,301,302,307 \
         -fs 0 -fl 0 \
@@ -229,7 +231,7 @@ elif [ "$MODE" = "params" ]; then
     echo "══════════════════════════════════════════"
     echo " [2/2] ffuf (POST params)"
     echo "══════════════════════════════════════════"
-    ffuf -u "$URL" -w "$WL" -t "$THREADS" \
+    timeout "$TOOL_TIMEOUT" ffuf -u "$URL" -w "$WL" -t "$THREADS" \
         -H "User-Agent: ${UA}" \
         -H "Content-Type: application/x-www-form-urlencoded" \
         -d "FUZZ=test" -X POST \
@@ -251,7 +253,7 @@ elif [ "$MODE" = "vhosts" ]; then
     echo "══════════════════════════════════════════"
     echo " [1/2] ffuf (vhost)"
     echo "══════════════════════════════════════════"
-    ffuf -u "$URL" -w "$WL" -t "$THREADS" \
+    timeout "$TOOL_TIMEOUT" ffuf -u "$URL" -w "$WL" -t "$THREADS" \
         -H "Host: FUZZ.${DOMAIN}" \
         -H "User-Agent: ${UA}" \
         -mc 200,301,302,307,401,403 \
@@ -264,7 +266,7 @@ elif [ "$MODE" = "vhosts" ]; then
     echo "══════════════════════════════════════════"
     echo " [2/2] gobuster (vhost)"
     echo "══════════════════════════════════════════"
-    gobuster vhost -u "$URL" -w "$WL" -t "$THREADS" \
+    timeout "$TOOL_TIMEOUT" gobuster vhost -u "$URL" -w "$WL" -t "$THREADS" \
         -a "$UA" \
         -o "$OUTPUT/raw/gobuster-vhosts.txt" \
         --no-error -q --append-domain \
