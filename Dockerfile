@@ -41,24 +41,19 @@ RUN git clone --depth 1 https://github.com/maurosoria/dirsearch.git /opt/dirsear
     pip install --break-system-packages -r /opt/dirsearch/requirements.txt 2>/dev/null || true && \
     ln -s /opt/dirsearch/dirsearch.py /usr/local/bin/dirsearch
 
-# ---- SecLists (selected wordlists only, not the full 2GB) --
-RUN mkdir -p /wordlists && \
-    git clone --depth 1 --filter=blob:none --sparse \
-        https://github.com/danielmiessler/SecLists.git /tmp/seclists && \
-    cd /tmp/seclists && \
-    git sparse-checkout set \
-        Discovery/Web-Content/raft-medium-directories.txt \
-        Discovery/Web-Content/raft-medium-files.txt \
-        Discovery/Web-Content/raft-small-words.txt \
-        Discovery/Web-Content/common.txt \
-        Discovery/Web-Content/directory-list-2.3-medium.txt \
-        Discovery/Web-Content/api/api-endpoints.txt \
-        Discovery/Web-Content/burp-parameter-names.txt \
-        Discovery/DNS/subdomains-top1million-5000.txt \
-        Discovery/DNS/subdomains-top1million-20000.txt \
-        Discovery/DNS/namelist.txt && \
-    cp -r Discovery /wordlists/Discovery && \
-    rm -rf /tmp/seclists
+# ---- SecLists (selected wordlists, downloaded individually) --
+RUN mkdir -p /wordlists/Discovery/Web-Content/api /wordlists/Discovery/DNS && \
+    BASE="https://raw.githubusercontent.com/danielmiessler/SecLists/master" && \
+    curl -sSL "$BASE/Discovery/Web-Content/raft-medium-directories.txt" -o /wordlists/Discovery/Web-Content/raft-medium-directories.txt && \
+    curl -sSL "$BASE/Discovery/Web-Content/raft-medium-files.txt" -o /wordlists/Discovery/Web-Content/raft-medium-files.txt && \
+    curl -sSL "$BASE/Discovery/Web-Content/raft-small-words.txt" -o /wordlists/Discovery/Web-Content/raft-small-words.txt && \
+    curl -sSL "$BASE/Discovery/Web-Content/common.txt" -o /wordlists/Discovery/Web-Content/common.txt && \
+    curl -sSL "$BASE/Discovery/Web-Content/directory-list-2.3-medium.txt" -o /wordlists/Discovery/Web-Content/directory-list-2.3-medium.txt && \
+    curl -sSL "$BASE/Discovery/Web-Content/api/api-endpoints.txt" -o /wordlists/Discovery/Web-Content/api/api-endpoints.txt && \
+    curl -sSL "$BASE/Discovery/Web-Content/burp-parameter-names.txt" -o /wordlists/Discovery/Web-Content/burp-parameter-names.txt && \
+    curl -sSL "$BASE/Discovery/DNS/subdomains-top1million-5000.txt" -o /wordlists/Discovery/DNS/subdomains-top1million-5000.txt && \
+    curl -sSL "$BASE/Discovery/DNS/subdomains-top1million-20000.txt" -o /wordlists/Discovery/DNS/subdomains-top1million-20000.txt && \
+    curl -sSL "$BASE/Discovery/DNS/namelist.txt" -o /wordlists/Discovery/DNS/namelist.txt
 
 # ---- app scripts -------------------------------------------
 COPY scripts/ /app/scripts/
