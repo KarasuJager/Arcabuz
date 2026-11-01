@@ -73,20 +73,32 @@ def extract_dirsearch(path: Path) -> list[dict]:
 
 
 def extract_feroxbuster(path: Path) -> list[dict]:
-    """Extract results from feroxbuster text output."""
+    """Extract results from feroxbuster text output.
+    Format: 200      GET      152l      485w     6974c http://target.com/path
+    Or old format: http://target.com/path (might start with url)
+    """
     results = []
     try:
         for line in path.read_text().splitlines():
             line = line.strip()
-            if not line or not line.startswith("http"):
+            if not line:
                 continue
-            parts = line.split()
-            url = parts[0]
+            # Skip feroxbuster status lines (Scanning:, Auto-filtering, etc.)
+            if line.startswith(("Scanning:", "Auto-filtering", "#", "─", "━", "Time:", "Req/Sec:")):
+                continue
+            # Find URL in the line (http:// or https://)
+            url = ""
             status = 0
+            parts = line.split()
             for p in parts:
-                if p.isdigit() and 100 <= int(p) <= 599:
-                    status = int(p)
+                if p.startswith("http://") or p.startswith("https://"):
+                    url = p
                     break
+            if not url:
+                continue
+            # First column is usually the status code
+            if parts[0].isdigit() and 100 <= int(parts[0]) <= 599:
+                status = int(parts[0])
             results.append({"url": url, "status": status, "source": "feroxbuster"})
     except Exception:
         pass

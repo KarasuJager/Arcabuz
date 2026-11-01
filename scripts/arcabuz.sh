@@ -126,20 +126,22 @@ if [ "$MODE" = "dirs" ]; then
     echo "══════════════════════════════════════════"
     echo " [1/4] ffuf"
     echo "══════════════════════════════════════════"
+    echo '{"results":[]}' > "$OUTPUT/raw/ffuf.json"
     timeout --kill-after=10 "$TOOL_TIMEOUT" ffuf -u "${URL}/FUZZ" -w "$WL" -t "$THREADS" \
         -H "User-Agent: ${UA}" \
-        -mc 200,201,204,301,302,307,401,403,405 \
-        -fc 404 \
+        -mc all -fc 404 \
         -o "$OUTPUT/raw/ffuf.json" -of json \
         $EXT_FLAG_FFUF \
-        -s 2>/dev/null || true
+        2>/dev/null || true
     FFUF_COUNT=$(jq '.results | length' "$OUTPUT/raw/ffuf.json" 2>/dev/null || echo 0)
     echo "    -> $FFUF_COUNT results"
+    [ "$FFUF_COUNT" -eq 0 ] && echo "    (timeout o sin resultados)"
     echo ""
 
     echo "══════════════════════════════════════════"
     echo " [2/4] gobuster"
     echo "══════════════════════════════════════════"
+    touch "$OUTPUT/raw/gobuster.txt"
     timeout --kill-after=10 "$TOOL_TIMEOUT" gobuster dir -u "$URL" -w "$WL" -t "$THREADS" \
         -a "$UA" \
         -s "200,201,204,301,302,307,401,403,405" \
@@ -154,6 +156,7 @@ if [ "$MODE" = "dirs" ]; then
     echo "══════════════════════════════════════════"
     echo " [3/4] dirsearch"
     echo "══════════════════════════════════════════"
+    echo '{"results":{}}' > "$OUTPUT/raw/dirsearch.json"
     timeout --kill-after=10 "$TOOL_TIMEOUT" python3 /opt/dirsearch/dirsearch.py -u "$URL" -w "$WL" \
         -t "$THREADS" \
         --user-agent="$UA" \
@@ -167,6 +170,7 @@ if [ "$MODE" = "dirs" ]; then
     echo "══════════════════════════════════════════"
     echo " [4/4] feroxbuster"
     echo "══════════════════════════════════════════"
+    touch "$OUTPUT/raw/feroxbuster.txt"
     timeout --kill-after=10 "$TOOL_TIMEOUT" feroxbuster -u "$URL" -w "$WL" -t "$THREADS" \
         -H "User-Agent: ${UA}" \
         -s 200,201,204,301,302,307,401,403,405 \
@@ -174,7 +178,7 @@ if [ "$MODE" = "dirs" ]; then
         --no-state -q \
         $EXT_FLAG_FEROX \
         2>/dev/null || true
-    FEROX_COUNT=$(grep -c "^http" "$OUTPUT/raw/feroxbuster.txt" 2>/dev/null || echo 0)
+    FEROX_COUNT=$(grep -cE "^[0-9]+ +[A-Z]+ .+http" "$OUTPUT/raw/feroxbuster.txt" 2>/dev/null || echo 0)
     echo "    -> $FEROX_COUNT results"
     echo ""
 
@@ -187,13 +191,14 @@ elif [ "$MODE" = "subs" ]; then
     echo "══════════════════════════════════════════"
     echo " [1/2] ffuf (vhost)"
     echo "══════════════════════════════════════════"
+    echo '{"results":[]}' > "$OUTPUT/raw/ffuf-subs.json"
     timeout --kill-after=10 "$TOOL_TIMEOUT" ffuf -u "http://${DOMAIN}" -w "$WL" -t "$THREADS" \
         -H "Host: FUZZ.${DOMAIN}" \
         -H "User-Agent: ${UA}" \
-        -mc 200,301,302,307,401,403 \
+        -mc all -fc 404 \
         -fs 0 \
         -o "$OUTPUT/raw/ffuf-subs.json" -of json \
-        -s 2>/dev/null || true
+        2>/dev/null || true
     FFUF_COUNT=$(jq '.results | length' "$OUTPUT/raw/ffuf-subs.json" 2>/dev/null || echo 0)
     echo "    -> $FFUF_COUNT results"
     echo ""
@@ -201,6 +206,7 @@ elif [ "$MODE" = "subs" ]; then
     echo "══════════════════════════════════════════"
     echo " [2/2] gobuster (dns)"
     echo "══════════════════════════════════════════"
+    touch "$OUTPUT/raw/gobuster-subs.txt"
     timeout --kill-after=10 "$TOOL_TIMEOUT" gobuster dns -d "$DOMAIN" -w "$WL" -t "$THREADS" \
         -o "$OUTPUT/raw/gobuster-subs.txt" \
         --no-error -q \
@@ -218,12 +224,13 @@ elif [ "$MODE" = "params" ]; then
     echo "══════════════════════════════════════════"
     echo " [1/2] ffuf (GET params)"
     echo "══════════════════════════════════════════"
+    echo '{"results":[]}' > "$OUTPUT/raw/ffuf-params-get.json"
     timeout --kill-after=10 "$TOOL_TIMEOUT" ffuf -u "${URL}?FUZZ=test" -w "$WL" -t "$THREADS" \
         -H "User-Agent: ${UA}" \
-        -mc 200,301,302,307 \
+        -mc all -fc 404 \
         -fs 0 -fl 0 \
         -o "$OUTPUT/raw/ffuf-params-get.json" -of json \
-        -s 2>/dev/null || true
+        2>/dev/null || true
     FFUF_GET=$(jq '.results | length' "$OUTPUT/raw/ffuf-params-get.json" 2>/dev/null || echo 0)
     echo "    -> $FFUF_GET GET params"
 
@@ -231,14 +238,15 @@ elif [ "$MODE" = "params" ]; then
     echo "══════════════════════════════════════════"
     echo " [2/2] ffuf (POST params)"
     echo "══════════════════════════════════════════"
+    echo '{"results":[]}' > "$OUTPUT/raw/ffuf-params-post.json"
     timeout --kill-after=10 "$TOOL_TIMEOUT" ffuf -u "$URL" -w "$WL" -t "$THREADS" \
         -H "User-Agent: ${UA}" \
         -H "Content-Type: application/x-www-form-urlencoded" \
         -d "FUZZ=test" -X POST \
-        -mc 200,301,302,307 \
+        -mc all -fc 404 \
         -fs 0 -fl 0 \
         -o "$OUTPUT/raw/ffuf-params-post.json" -of json \
-        -s 2>/dev/null || true
+        2>/dev/null || true
     FFUF_POST=$(jq '.results | length' "$OUTPUT/raw/ffuf-params-post.json" 2>/dev/null || echo 0)
     echo "    -> $FFUF_POST POST params"
     echo ""
@@ -253,12 +261,13 @@ elif [ "$MODE" = "vhosts" ]; then
     echo "══════════════════════════════════════════"
     echo " [1/2] ffuf (vhost)"
     echo "══════════════════════════════════════════"
+    echo '{"results":[]}' > "$OUTPUT/raw/ffuf-vhosts.json"
     timeout --kill-after=10 "$TOOL_TIMEOUT" ffuf -u "$URL" -w "$WL" -t "$THREADS" \
         -H "Host: FUZZ.${DOMAIN}" \
         -H "User-Agent: ${UA}" \
-        -mc 200,301,302,307,401,403 \
+        -mc all -fc 404 \
         -o "$OUTPUT/raw/ffuf-vhosts.json" -of json \
-        -s 2>/dev/null || true
+        2>/dev/null || true
     FFUF_COUNT=$(jq '.results | length' "$OUTPUT/raw/ffuf-vhosts.json" 2>/dev/null || echo 0)
     echo "    -> $FFUF_COUNT results"
     echo ""
@@ -266,6 +275,7 @@ elif [ "$MODE" = "vhosts" ]; then
     echo "══════════════════════════════════════════"
     echo " [2/2] gobuster (vhost)"
     echo "══════════════════════════════════════════"
+    touch "$OUTPUT/raw/gobuster-vhosts.txt"
     timeout --kill-after=10 "$TOOL_TIMEOUT" gobuster vhost -u "$URL" -w "$WL" -t "$THREADS" \
         -a "$UA" \
         -o "$OUTPUT/raw/gobuster-vhosts.txt" \
